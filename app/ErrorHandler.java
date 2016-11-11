@@ -1,6 +1,7 @@
 import exceptions.ApplicationException;
 import play.Configuration;
 import play.Environment;
+import play.Logger;
 import play.api.OptionalSourceMapper;
 import play.api.routing.Router;
 import play.http.DefaultHttpErrorHandler;
@@ -24,6 +25,7 @@ import java.util.concurrent.CompletionStage;
 public class ErrorHandler extends DefaultHttpErrorHandler {
 
     private final MessagesApi messagesApi;
+    private static final Logger.ALogger logger = Logger.of(ErrorHandler .class);
 
     @Inject
     public ErrorHandler(Configuration configuration, Environment environment,
@@ -50,11 +52,13 @@ public class ErrorHandler extends DefaultHttpErrorHandler {
             // common ApplicationException handling.
             play.i18n.Lang lang = Http.Context.current().lang();
             ApplicationException ae = (ApplicationException)exception;
+            logger.error("ApplicationException with ", exception);
             return CompletableFuture.completedFuture(Results.
                     internalServerError(Json.toJson(messagesApi.get(lang, ae.getMessageCode()))));
         } else {
             // unexpected error.
             // TODO:  NotFound is strange. This should be Server error.
+            logger.error("Exception with  ", exception);
             return CompletableFuture.completedFuture(Results.internalServerError(Json.toJson(exception.getMessage())));
         }
 

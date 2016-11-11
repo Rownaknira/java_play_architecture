@@ -1,5 +1,6 @@
 package controllers;
 
+import actions.AccessLoggingAction;
 import anotations.HasRoles;
 import authentication.NeedLogin;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -10,14 +11,12 @@ import dtos.ProductInput;
 import dtos.ProductOutput;
 import models.Product;
 import org.modelmapper.ModelMapper;
+import play.Logger;
 import play.data.Form;
 import play.data.FormFactory;
 import play.i18n.MessagesApi;
 import play.libs.Json;
-import play.mvc.Controller;
-import play.mvc.Http;
-import play.mvc.Result;
-import play.mvc.Security;
+import play.mvc.*;
 import services.ProductService;
 
 /**
@@ -25,6 +24,7 @@ import services.ProductService;
  */
 
 @Security.Authenticated(NeedLogin.class)
+@With(AccessLoggingAction.class)
 public class ProductController extends Controller {
     /*
      TODO: I recommend to define validate method in Form object, because this is play's standard and less code in controller.
@@ -34,6 +34,7 @@ public class ProductController extends Controller {
            then, make output DTO from service method return value, and make response json from output dto. In this case,
            DTO has only validation definition, and model has only Entity definition.
     */
+    private static final Logger.ALogger logger = Logger.of(ProductController.class);
     private final MessagesApi messagesApi;
     private final ProductService productService;
     private final FormFactory formFactory;
